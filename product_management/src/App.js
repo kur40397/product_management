@@ -1,20 +1,59 @@
-import logo from './logo.svg';
 import './App.css';
-
-import { Navbar, Services, About } from './components/Imports'
-import { Route, Switch, BrowserRouter } from "react-router-dom"
+import Navbar from './components/first_Page/Navbar';
+import BasicGrid from './components/first_Page/BasicGrid';
+import {
+  BrowserRouter,
+  Switch,
+  Route,
+} from "react-router-dom";
+import Login from './components/first_Page/Login';
+import { useEffect, useState } from 'react';
+import { Redirect } from 'react-router-dom';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from './database/firebaseAuth'
 
 function App() {
+  const [loggedIn, setLoggedIn] = useState(false)
+  const [authentification, setAuthentification] = useState(true)
+  useEffect(() => {
+    //onAuthStateChanged kaydeclancha mnin luser,  logged in , logged out 
+    //onAuthStateChanged => first load => user=null mais user connected==> user!=null
+    // had callback function katexecuta
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setAuthentification(true)
+      } else {
+        setAuthentification(false)
+      }
+    });
+  }, [])
+  // katgol bli had useEffect kaytexecuta only once , makaydependi 3la 7ta chi state
   return (
+
     <div className="App">
-      <BrowserRouter> {/* kayjma3 lik ayi 7aja 3andha 3laka m3a routing */}
+      <BrowserRouter> {/* bach tactivi routing dialek */}
         <Navbar />
         <Switch>
-          <Route path="/about" component={About} />
-          <Route path="/services" component={Services} />
+          <Route exact path="/">
+            {authentification ? (
+              <Redirect to="/Home" />
+            ) : (
+              <Redirect to="/Login" />
+              // redecting users to differents routes 
+            )}
+          </Route>
+          <Route path="/Register">
+            <BasicGrid />
+          </Route>
+          <Route path="/Login">
+            <Login />
+          </Route>
+
         </Switch>
       </BrowserRouter>
-    </div>
+
+
+    </div >
   );
 }
 
